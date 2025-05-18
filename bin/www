@@ -1,0 +1,67 @@
+import init from './init.js';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+var debug = require('debug')('bolgserver:server');
+import app from '../app.js';
+import http from 'http';
+
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    return val;
+  }
+
+  if (port >= 0) {
+    return port;
+  }
+
+  return false;
+}
+var port = normalizePort(8001 || '7001');
+app.set('port', port);
+
+var server = http.createServer(app);
+import  Socket  from '../routes/chatAPI.js';
+const socket= new Socket(server);
+server.listen(port,'0.0.0.0',()=>{
+  console.log("当前端口",port,'')
+});
+
+
+server.on('error', onError);
+server.on('listening', onListening);
+
+
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+    default:
+      throw error;
+  }
+}
+
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+  console.log(`当前${process.env.NODE_ENV}环境`);
+} 
